@@ -116,7 +116,7 @@ This "lazy + cron" hybrid gives both **accuracy on reads** and **eventual cleanu
 
 ---
 
-## Idempotency (Bonus)
+## Idempotency 
 
 Both `POST /api/reservations` and `POST /api/reservations/:id/confirm` support idempotent requests via an `Idempotency-Key` header.
 
