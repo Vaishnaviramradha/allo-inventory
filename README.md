@@ -2,8 +2,8 @@
 
 A Next.js inventory and reservation platform for multi-warehouse retail. Customers can browse products, hold stock for 10 minutes while they complete payment, and confirm or release reservations.
 
-**Live demo:** _[add your Vercel URL here]_
-**GitHub:** _[add your repo URL here]_
+**Vercel URL:** https://alloassignment.vercel.app/
+**GitHub:** _https://github.com/Vaishnaviramradha/allo-inventory
 
 ---
 
@@ -18,7 +18,7 @@ A Next.js inventory and reservation platform for multi-warehouse retail. Custome
 ### 2. Clone and install
 
 ```bash
-git clone <your-repo-url>
+git clone <https://github.com/Vaishnaviramradha/allo-inventory>
 cd allo-inventory
 npm install
 ```
@@ -94,11 +94,11 @@ Two concurrent transactions arriving at the same time will serialise here: one a
 
 ### In production (Vercel)
 
-`vercel.json` configures a cron job to `GET /api/cron/expire` **every minute**:
+`vercel.json` configures a cron job to `GET /api/cron/expire` **every day**:
 
 ```json
 {
-  "crons": [{ "path": "/api/cron/expire", "schedule": "* * * * *" }]
+  "crons": [{ "path": "/api/cron/expire", "schedule": "0 0 * * *" }]
 }
 ```
 
@@ -180,19 +180,11 @@ The cron job is automatically provisioned by Vercel from `vercel.json`.
 
 - **Lazy expiry + cron** rather than a persistent background worker. A proper worker (BullMQ, pg_cron, or Temporal) would be more reliable, but adds infrastructure complexity. The hybrid approach is correct and cheap.
 
-- **Idempotency in Postgres** rather than Redis. Slightly slower lookup (1 DB query vs 1 Redis GET), but durable across cache flushes. For a real payments flow, durability matters more than a few milliseconds.
-
-- **Single stock row locking** rather than advisory locks. `SELECT FOR UPDATE` is simple and correct. For extremely hot SKUs (flash sales), advisory locks or a CRDT-style counter in Redis would scale better.
-
 - **No optimistic locking / retry UI.** If a user's reservation fails with 409, they see the error and must retry manually. A polished UI would auto-select the next-best warehouse.
 
 **With more time:**
 
-- Add real payment simulation (mock 3DS flow with a timer)
-- Add order history page per "user" (would need auth — NextAuth.js)
-- Add admin panel to view/manage all reservations and adjust stock
-- Add webhook support so downstream systems (shipping, ERP) are notified on confirm
-- Write integration tests for the concurrent reservation logic (e.g. using `Promise.all` to fire 10 simultaneous requests at the last unit)
+
 - Use Prisma migrations instead of `db push` for production schema evolution
 
 ---
