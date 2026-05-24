@@ -1,7 +1,6 @@
 // src/app/page.tsx
 import { ProductGrid } from "./page-components/ProductGrid";
 
-export const revalidate = 0;
 
 export default function HomePage() {
   return (
