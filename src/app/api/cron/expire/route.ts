@@ -1,17 +1,22 @@
 // src/app/api/cron/expire/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { releaseExpiredReservations } from "@/lib/expiry";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  // Verify Vercel cron secret to prevent abuse
-  const authHeader = req.headers.get("authorization");
-  if (
-    process.env.CRON_SECRET &&
-    authHeader !== `Bearer ${process.env.CRON_SECRET}`
-  ) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  try {
+    const authHeader = req.headers.get("authorization");
+    if (
+      process.env.CRON_SECRET &&
+      authHeader !== `Bearer ${process.env.CRON_SECRET}`
+    ) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-  const result = await releaseExpiredReservations();
-  return NextResponse.json({ ok: true, ...result });
+    const { releaseExpiredReservations } = await import("@/lib/expiry");
+    const result = await releaseExpiredReservations();
+    return NextResponse.json({ ok: true, ...result });
+  } catch (error) {
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }
